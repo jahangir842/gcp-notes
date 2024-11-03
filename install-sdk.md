@@ -48,10 +48,16 @@ Add the Google Cloud package signing key and repository to your system:
 
 ---
 
-### Step 5: Initialize the Google Cloud SDK
+### Step 5: Initialize the Google Cloud SDK On Local Machine:
 After installation, initialize the SDK by running:
 ```bash
 gcloud init
+```
+
+### Step 5: Initialize the Google Cloud SDK On Remote Machine:
+If using a remote connection the use this option and copy the URL and paste it in your local browser to get access.
+```bash
+gcloud init --console-only
 ```
 
 This command will:
