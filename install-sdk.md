@@ -1,4 +1,5 @@
-To install and configure the Google Cloud SDK (gcloud) on Ubuntu, follow these steps:
+### Resources:
+- https://cloud.google.com/sdk/docs/install
 
 ---
 
