@@ -82,3 +82,40 @@ deploy:
 - Ensure that the runner environment has the required permissions and network access to GCP.
 
 This setup will allow GitLab CI to automatically authenticate, connect to your Kubernetes cluster, and run the `kubectl` commands as you specified.
+
+---
+
+## VM as Runner:
+
+To run these commands on your own Ubuntu VM, you can configure the VM as a **self-hosted GitLab Runner**. This will let your GitLab pipeline jobs run directly on your VM, so any commands (like `kubectl`) will execute in that environment.
+
+### Steps to Set Up Your Ubuntu VM as a GitLab Runner
+
+1. **Install GitLab Runner on Your VM**:
+   - SSH into your Ubuntu VM.
+   - Follow the official [GitLab Runner installation guide for Ubuntu](https://docs.gitlab.com/runner/install/linux-repository.html):
+     ```bash
+     curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64
+     sudo chmod +x /usr/local/bin/gitlab-runner
+     ```
+
+2. **Register the Runner with Your GitLab Project**:
+   - After installation, register your GitLab Runner to link it to your GitLab project. Use the following command on your VM:
+     ```bash
+     sudo gitlab-runner register
+     ```
+   - During registration, you’ll need:
+     - The **GitLab instance URL** (e.g., `https://gitlab.com`).
+     - A **registration token**, found in **Settings > CI / CD > Runners** in your GitLab project.
+     - **Executor type**: Choose `shell` if you want jobs to run directly on the VM without containerization.
+   - This setup allows jobs to use the environment of your VM directly.
+
+3. **Update Your .gitlab-ci.yml File**:
+   - Now that your runner is registered, you can use the same `.gitlab-ci.yml` file as before. It will run directly on your VM and use any tools installed there, such as `kubectl` or `gcloud`.
+   - You don’t need to install `kubectl` in every pipeline job if it’s already installed on your VM; you can remove the installation lines from the YAML file.
+
+4. **Run the Pipeline**:
+   - Commit and push your `.gitlab-ci.yml` file to trigger the pipeline.
+   - The registered runner (your VM) will pick up the job and execute the commands directly on the VM.
+
+With this setup, `kubectl` and `gcloud` will run on your Ubuntu VM whenever a job is triggered, allowing you to interact with your Kubernetes cluster as you would locally.
