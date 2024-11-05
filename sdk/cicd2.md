@@ -113,6 +113,52 @@ To run these commands on your own Ubuntu VM, you can configure the VM as a **sel
 3. **Update Your .gitlab-ci.yml File**:
    - Now that your runner is registered, you can use the same `.gitlab-ci.yml` file as before. It will run directly on your VM and use any tools installed there, such as `kubectl` or `gcloud`.
    - You don’t need to install `kubectl` in every pipeline job if it’s already installed on your VM; you can remove the installation lines from the YAML file.
+  
+---
+
+Since you’ll be using your own Ubuntu VM as the GitLab Runner, the pipeline can be simplified. We can skip installing `kubectl` and `gcloud` in each job since they are already set up on your VM.
+
+Here’s a streamlined `.gitlab-ci.yml` file:
+
+```yaml
+stages:
+  - deploy
+
+before_script:
+  # Authenticate with GCP
+  - echo "$GCP_SERVICE_ACCOUNT_KEY" > /tmp/gcp-key.json
+  - gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
+  - gcloud config set project <YOUR_PROJECT_ID>
+  - gcloud config set compute/zone <YOUR_COMPUTE_ZONE>
+
+deploy:
+  stage: deploy
+  script:
+    # Configure kubectl to access the cluster
+    - gcloud container clusters get-credentials <YOUR_CLUSTER_NAME> --zone <YOUR_COMPUTE_ZONE> --project <YOUR_PROJECT_ID>
+    # Run any kubectl commands here
+    - kubectl get pods
+```
+
+### Explanation
+
+1. **before_script**:
+   - Sets up Google Cloud authentication using the service account key stored as a GitLab CI/CD variable.
+   - Configures the GCP project and zone for `gcloud` commands.
+
+2. **deploy Job**:
+   - Fetches the credentials for your Kubernetes cluster using `gcloud container clusters get-credentials`, enabling `kubectl` to communicate with the cluster.
+   - Runs `kubectl get pods` to list the pods in your cluster. You can replace this with any other `kubectl` commands as needed.
+
+### GitLab CI/CD Variables
+
+- In your GitLab project’s settings, go to **Settings > CI / CD > Variables**.
+- Add `GCP_SERVICE_ACCOUNT_KEY` as a variable, with the content of your Google Cloud service account JSON key.
+
+### Notes
+
+- Make sure to replace `<YOUR_PROJECT_ID>`, `<YOUR_COMPUTE_ZONE>`, and `<YOUR_CLUSTER_NAME>` with your actual Google Cloud project and Kubernetes cluster details.
+- Since this runner is set up on your VM, each command will run in the VM environment directly, allowing seamless access to `gcloud` and `kubectl`.
 
 4. **Run the Pipeline**:
    - Commit and push your `.gitlab-ci.yml` file to trigger the pipeline.
