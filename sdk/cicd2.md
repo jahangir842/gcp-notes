@@ -1,3 +1,7 @@
+i have a laptop with windows installed, on which i have installed superputty, i access a linux vm from this superputty, in that linux vm i run "gcloud auth login --console-only" command, then I copy the link and put in your browser, and complete the sign-in prompts, now gcp login is successful, now I run command "kubectl get pods", how can I perform this whole operation with a gitlab pipeline
+
+---
+
 To set up this operation in a GitLab CI/CD pipeline, we need to accomplish these tasks:
 
 1. **Authenticate with Google Cloud** in a non-interactive way.
